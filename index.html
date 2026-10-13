@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little KITES School Level Camp Phase 2 - Individual Evaluation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h2 {
+            margin: 0;
+            color: #1a237e;
+            font-size: 22px;
+        }
+        .top-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-details div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .top-details input {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 3px;
+            font-size: 14px;
+            outline: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+        }
+        th {
+            background-color: #e8eaf6;
+        }
+        .vertical-text {
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            padding: 10px 2px;
+            margin: auto;
+        }
+        input[type="text"], input[type="number"] {
+            width: 90%;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: center;
+        }
+        input[type="text"].name-input {
+            text-align: left;
+        }
+        .btn-container {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .add-btn { background-color: #2e7d32; color: white; }
+        .print-btn { background-color: #1565c0; color: white; }
+        .option-btn { background-color: #f57c00; color: white; padding: 4px 8px; }
+
+        @media print {
+            .btn-container, .option-btn, .action-col {
+                display: none;
+            }
+            body { background: white; margin: 0; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            input { border: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Little KITES School Level Camp Phase 2 - Individual Evaluation</h2>
+    </div>
+
+    <div class="top-details">
+        <div>Venue of Camp: <input type="text" style="width: 200px;"></div>
+        <div>Sub district: <input type="text" style="width: 150px;"></div>
+        <div>Date: <input type="date"></div>
+    </div>
+
+    <table id="scoreTable">
+        <thead>
+            <tr>
+                <th rowspan="2" style="width: 20%;">Name of Students</th>
+                <th colspan="5">Programming</th>
+                <th colspan="2">Animation</th>
+                <th rowspan="2">Phase-2 Camp<br>Total Score</th>
+                <th rowspan="2" style="width: 15%;">Remarks</th>
+                <th rowspan="2" class="action-col">Action</th>
+            </tr>
+            <tr>
+                <th><div class="vertical-text">Task - S1</div></th>
+                <th><div class="vertical-text">Task - S2</div></th>
+                <th><div class="vertical-text">Task - S3</div></th>
+                <th><div class="vertical-text">Task - S4</div></th>
+                <th><div class="vertical-text">Prog. Assigmnt</div></th>
+                <th><div class="vertical-text">Camp Performance</div></th>
+                <th><div class="vertical-text">Animation Assignment</div></th>
+            </tr>
+            <tr style="background-color: #f1f1f1; font-weight: bold;">
+                <td>Max Mark</td>
+                <td>5</td>
+                <td>5</td>
+                <td>5</td>
+                <td>5</td>
+                <td>10</td>
+                <td>10</td>
+                <td>20</td>
+                <td>60</td>
+                <td>-</td>
+                <td class="action-col">-</td>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- First Row -->
+            <tr>
+                <td><input type="text" class="name-input" placeholder="Student Name"></td>
+                <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+                <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+                <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+                <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+                <td><input type="number" class="score" min="0" max="10" oninput="calculateTotal(this)"></td>
+                <td><input type="number" class="score" min="0" max="10" oninput="calculateTotal(this)"></td>
+                <td><input type="number" class="score" min="0" max="20" oninput="calculateTotal(this)"></td>
+                <td class="total-score" style="font-weight: bold;">0</td>
+                <td><input type="text" placeholder="Remarks"></td>
+                <td class="action-col"><button class="option-btn" onclick="toggleEdit(this)">Edit</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="btn-container">
+        <button class="add-btn" onclick="addRow()">+ Add New Student</button>
+        <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+    </div>
+</div>
+
+<script>
+    // Total calculation function
+    function calculateTotal(inputElement) {
+        let row = inputElement.closest('tr');
+        let scores = row.querySelectorAll('.score');
+        let total = 0;
+
+        scores.forEach(input => {
+            let val = parseFloat(input.value);
+            if (!isNaN(val)) {
+                total += val;
+            }
+        });
+
+        row.querySelector('.total-score').innerText = total;
+    }
+
+    // Add new row function
+    function addRow() {
+        let tbody = document.getElementById('tableBody');
+        let newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td><input type="text" class="name-input" placeholder="Student Name"></td>
+            <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" oninput="calculateTotal(this)"></td>
+            <td><input type="number" class="score" min="0" max="10" oninput="calculateTotal(this)"></td>
+            <td><input type="number" class="score" min="0" max="10" oninput="calculateTotal(this)"></td>
+            <td><input type="number" class="score" min="0" max="20" oninput="calculateTotal(this)"></td>
+            <td class="total-score" style="font-weight: bold;">0</td>
+            <td><input type="text" placeholder="Remarks"></td>
+            <td class="action-col"><button class="option-btn" onclick="toggleEdit(this)">Edit</button></td>
+        `;
+
+        tbody.appendChild(newRow);
+    }
+
+    // Toggle Edit option function
+    function toggleEdit(btn) {
+        let row = btn.closest('tr');
+        let inputs = row.querySelectorAll('input');
+        
+        let isDisabled = inputs[0].disabled;
+        inputs.forEach(input => {
+            input.disabled = !isDisabled;
+        });
+
+        if (isDisabled) {
+            btn.innerText = "Edit";
+            btn.style.backgroundColor = "#f57c00";
+        } else {
+            btn.innerText = "Save";
+            btn.style.backgroundColor = "#2e7d32";
+        }
+    }
+</script>
+
+</body>
+</html>
