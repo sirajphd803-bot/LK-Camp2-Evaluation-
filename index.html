@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little KITES School Level Camp Phase 2 - Individual Evaluation</title>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOfVX6SmYq4cSnoSpjXiRs6v-uGMgemCA",
+            authDomain: "lk-camp2-evaluation.firebaseapp.com",
+            projectId: "lk-camp2-evaluation",
+            storageBucket: "lk-camp2-evaluation.appspot.com",
+            messagingSenderId: "274313043174",
+            appId: "1:274313043174:web:a4179138488d98b558af27"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make db and functions globally available
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.onSnapshot = onSnapshot;
+
+        // Trigger loading data after firebase is ready
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h2 {
+            margin: 0;
+            color: #1a237e;
+            font-size: 22px;
+        }
+        .top-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-details div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .top-details input {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 3px;
+            font-size: 14px;
+            outline: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+        }
+        th {
+            background-color: #e8eaf6;
+        }
+        .vertical-text {
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            padding: 10px 2px;
+            margin: auto;
+        }
+        input[type="text"], input[type="number"] {
+            width: 90%;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: center;
+        }
+        input[type="text"].name-input {
+            text-align: left;
+        }
+        .btn-container {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .add-btn { background-color: #2e7d32; color: white; }
+        .print-btn { background-color: #1565c0; color: white; }
+        .option-btn { background-color: #f57c00; color: white; padding: 4px 10px; }
+        #sync-status { font-size: 12px; color: green; font-weight: bold; margin-left: auto; }
+
+        @media print {
+            .btn-container, .option-btn, .action-col {
+                display: none;
+            }
+            body { background: white; margin: 0; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            input { border: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Little KITES School Level Camp Phase 2 - Individual Evaluation</h2>
+    </div>
+
+    <div class="top-details">
+        <div>Venue of Camp: <input type="text" id="venue" style="width: 200px;" oninput="saveMetaData()"></div>
+        <div>Sub district: <input type="text" id="subdist" style="width: 150px;" oninput="saveMetaData()"></div>
+        <div>Date: <input type="date" id="cdate" oninput="saveMetaData()"></div>
+    </div>
+
+    <table id="scoreTable">
+        <thead>
+            <tr>
+                <th rowspan="2" style="width: 20%;">Name of Students</th>
+                <th colspan="5">Programming</th>
+                <th colspan="2">Animation</th>
+                <th rowspan="2">Phase-2 Camp<br>Total Score</th>
+                <th rowspan="2" style="width: 15%;">Remarks</th>
+                <th rowspan="2" class="action-col">Action</th>
+            </tr>
+            <tr>
+                <th><div class="vertical-text">Task - S1</div></th>
+                <th><div class="vertical-text">Task - S2</div></th>
+                <th><div class="vertical-text">Task - S3</div></th>
+                <th><div class="vertical-text">Task - S4</div></th>
+                <th><div class="vertical-text">Prog. Assigmnt</div></th>
+                <th><div class="vertical-text">Camp Performance</div></th>
+                <th><div class="vertical-text">Animation Assignment</div></th>
+            </tr>
+            <tr style="background-color: #f1f1f1; font-weight: bold;">
+                <td>Max Mark</td>
+                <td>5</td>
+                <td>5</td>
+                <td>5</td>
+                <td>5</td>
+                <td>10</td>
+                <td>10</td>
+                <td>20</td>
+                <td>60</td>
+                <td>-</td>
+                <td class="action-col">-</td>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Rows will load dynamically from Firebase -->
+        </tbody>
+    </table>
+
+    <div class="btn-container">
+        <button class="add-btn" onclick="addNewRow()">+ Add New Student</button>
+        <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+        <span id="sync-status">Connecting to Firebase...</span>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('firebase-ready', () => {
+        initApp();
+    });
+
+    function initApp() {
+        const db = window.db;
+        const collection = window.collection;
+        const onSnapshot = window.onSnapshot;
+
+        onSnapshot(collection(db, "students"), (snapshot) => {
+            let tbody = document.getElementById('tableBody');
+            tbody.innerHTML = "";
+            
+            if(snapshot.empty) {
+                addNewRowInDb({
+                    name: "", s1: "", s2: "", s3: "", s4: "", prog: "", camp: "", anim: "", remarks: ""
+                });
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                let id = docSnap.id;
+                renderRow(id, data);
+            });
+            document.getElementById('sync-status').innerText = "● Live Synced with Firebase";
+        });
+
+        onSnapshot(collection(db, "metadata"), (snapshot) => {
+            snapshot.forEach((docSnap) => {
+                if(docSnap.id === "info") {
+                    let data = docSnap.data();
+                    if(data.venue) document.getElementById('venue').value = data.venue;
+                    if(data.subdist) document.getElementById('subdist').value = data.subdist;
+                    if(data.cdate) document.getElementById('cdate').value = data.cdate;
+                }
+            });
+        });
+    }
+
+    function renderRow(id, data) {
+        let tbody = document.getElementById('tableBody');
+        let newRow = document.createElement('tr');
+        newRow.setAttribute('data-id', id);
+
+        let total = (parseFloat(data.s1) || 0) + 
+                    (parseFloat(data.s2) || 0) + 
+                    (parseFloat(data.s3) || 0) + 
+                    (parseFloat(data.s4) || 0) + 
+                    (parseFloat(data.prog) || 0) + 
+                    (parseFloat(data.camp) || 0) + 
+                    (parseFloat(data.anim) || 0);
+
+        newRow.innerHTML = `
+            <td><input type="text" class="name-input" value="${data.name || ''}" placeholder="Student Name" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s1 !== undefined ? data.s1 : ''}" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s2 !== undefined ? data.s2 : ''}" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s3 !== undefined ? data.s3 : ''}" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s4 !== undefined ? data.s4 : ''}" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="10" value="${data.prog !== undefined ? data.prog : ''}" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="10" value="${data.camp !== undefined ? data.camp : ''}" oninput="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="20" value="${data.anim !== undefined ? data.anim : ''}" oninput="updateData(this)"></td>
+            <td class="total-score" style="font-weight: bold;">${total}</td>
+            <td><input type="text" class="remarks-input" value="${data.remarks || ''}" placeholder="Remarks" oninput="updateData(this)"></td>
+            <td class="action-col">
+                <button class="option-btn" onclick="toggleEdit(this)">Edit</button>
+            </td>
+        `;
+        tbody.appendChild(newRow);
+    }
+
+    async function addNewRowInDb(data) {
+        const db = window.db;
+        const setDoc = window.setDoc;
+        const doc = window.doc;
+        const collection = window.collection;
+
+        let newDocRef = doc(collection(db, "students"));
+        await setDoc(newDocRef, data);
+    }
+
+    function addNewRow() {
+        addNewRowInDb({
+            name: "", s1: "", s2: "", s3: "", s4: "", prog: "", camp: "", anim: "", remarks: ""
+        });
+    }
+
+    async function updateData(element) {
+        let row = element.closest('tr');
+        let id = row.getAttribute('data-id');
+        if(!id) return;
+
+        let inputs = row.querySelectorAll('input');
+        let data = {
+            name: inputs[0].value,
+            s1: inputs[1].value,
+            s2: inputs[2].value,
+            s3: inputs[3].value,
+            s4: inputs[4].value,
+            prog: inputs[5].value,
+            camp: inputs[6].value,
+            anim: inputs[7].value,
+            remarks: inputs[8].value
+        };
+
+        let total = 0;
+        for(let i=1; i<=7; i++) {
+            let val = parseFloat(inputs[i].value);
+            if(!isNaN(val)) total += val;
+        }
+        row.querySelector('.total-score').innerText = total;
+
+        const db = window.db;
+        const setDoc = window.setDoc;
+        const doc = window.doc;
+        await setDoc(doc(db, "students", id), data);
+    }
+
+    async function saveMetaData() {
+        let venue = document.getElementById('venue').value;
+        let subdist = document.getElementById('subdist').value;
+        let cdate = document.getElementById('cdate').value;
+
+        const db = window.db;
+        const setDoc = window.setDoc;
+        const doc = window.doc;
+        await setDoc(doc(db, "metadata", "info"), { venue, subdist, cdate });
+    }
+
+    function toggleEdit(btn) {
+        let row = btn.closest('tr');
+        let inputs = row.querySelectorAll('input');
+        let isDisabled = inputs[0].disabled;
+        
+        inputs.forEach(input => {
+            input.disabled = !isDisabled;
+        });
+
+        if (isDisabled) {
+            btn.innerText = "Edit";
+            btn.style.backgroundColor = "#f57c00";
+        } else {
+            btn.innerText = "Lock";
+            btn.style.backgroundColor = "#2e7d32";
+        }
+    }
+</script>
+
+</body>
+</html>
