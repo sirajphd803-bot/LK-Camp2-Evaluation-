@@ -145,9 +145,9 @@
     </div>
 
     <div class="top-details">
-        <div>Venue of Camp: <input type="text" id="venue" style="width: 200px;" oninput="saveMetaData()"></div>
-        <div>Sub district: <input type="text" id="subdist" style="width: 150px;" oninput="saveMetaData()"></div>
-        <div>Date: <input type="date" id="cdate" oninput="saveMetaData()"></div>
+        <div>Venue of Camp: <input type="text" id="venue" style="width: 200px;" onchange="saveMetaData()"></div>
+        <div>Sub district: <input type="text" id="subdist" style="width: 150px;" onchange="saveMetaData()"></div>
+        <div>Date: <input type="date" id="cdate" onchange="saveMetaData()"></div>
     </div>
 
     <table id="scoreTable">
@@ -196,6 +196,8 @@
 </div>
 
 <script>
+    let isLoaded = false;
+
     window.addEventListener('firebase-ready', () => {
         initApp();
     });
@@ -206,21 +208,24 @@
         const onSnapshot = window.onSnapshot;
 
         onSnapshot(collection(db, "students"), (snapshot) => {
-            let tbody = document.getElementById('tableBody');
-            tbody.innerHTML = "";
-            
-            if(snapshot.empty) {
-                addNewRowInDb({
-                    name: "", s1: "", s2: "", s3: "", s4: "", prog: "", camp: "", anim: "", remarks: ""
-                });
-                return;
-            }
+            if(!isLoaded) {
+                let tbody = document.getElementById('tableBody');
+                tbody.innerHTML = "";
+                
+                if(snapshot.empty) {
+                    addNewRowInDb({
+                        name: "", s1: "", s2: "", s3: "", s4: "", prog: "", camp: "", anim: "", remarks: ""
+                    });
+                    return;
+                }
 
-            snapshot.forEach((docSnap) => {
-                let data = docSnap.data();
-                let id = docSnap.id;
-                renderRow(id, data);
-            });
+                snapshot.forEach((docSnap) => {
+                    let data = docSnap.data();
+                    let id = docSnap.id;
+                    renderRow(id, data);
+                });
+                isLoaded = true;
+            }
             document.getElementById('sync-status').innerText = "● Live Synced with Firebase";
         });
 
@@ -228,9 +233,9 @@
             snapshot.forEach((docSnap) => {
                 if(docSnap.id === "info") {
                     let data = docSnap.data();
-                    if(data.venue) document.getElementById('venue').value = data.venue;
-                    if(data.subdist) document.getElementById('subdist').value = data.subdist;
-                    if(data.cdate) document.getElementById('cdate').value = data.cdate;
+                    if(document.activeElement.id !== 'venue' && data.venue) document.getElementById('venue').value = data.venue;
+                    if(document.activeElement.id !== 'subdist' && data.subdist) document.getElementById('subdist').value = data.subdist;
+                    if(document.activeElement.id !== 'cdate' && data.cdate) document.getElementById('cdate').value = data.cdate;
                 }
             });
         });
@@ -250,16 +255,16 @@
                     (parseFloat(data.anim) || 0);
 
         newRow.innerHTML = `
-            <td><input type="text" class="name-input" value="${data.name || ''}" placeholder="Student Name" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="5" value="${data.s1 !== undefined ? data.s1 : ''}" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="5" value="${data.s2 !== undefined ? data.s2 : ''}" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="5" value="${data.s3 !== undefined ? data.s3 : ''}" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="5" value="${data.s4 !== undefined ? data.s4 : ''}" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="10" value="${data.prog !== undefined ? data.prog : ''}" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="10" value="${data.camp !== undefined ? data.camp : ''}" oninput="updateData(this)"></td>
-            <td><input type="number" class="score" min="0" max="20" value="${data.anim !== undefined ? data.anim : ''}" oninput="updateData(this)"></td>
+            <td><input type="text" class="name-input" value="${data.name || ''}" placeholder="Student Name" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s1 !== undefined ? data.s1 : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s2 !== undefined ? data.s2 : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s3 !== undefined ? data.s3 : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="5" value="${data.s4 !== undefined ? data.s4 : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="10" value="${data.prog !== undefined ? data.prog : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="10" value="${data.camp !== undefined ? data.camp : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
+            <td><input type="number" class="score" min="0" max="20" value="${data.anim !== undefined ? data.anim : ''}" oninput="calculateLocalTotal(this)" onchange="updateData(this)"></td>
             <td class="total-score" style="font-weight: bold;">${total}</td>
-            <td><input type="text" class="remarks-input" value="${data.remarks || ''}" placeholder="Remarks" oninput="updateData(this)"></td>
+            <td><input type="text" class="remarks-input" value="${data.remarks || ''}" placeholder="Remarks" onchange="updateData(this)"></td>
             <td class="action-col">
                 <button class="option-btn" onclick="toggleEdit(this)">Edit</button>
             </td>
@@ -275,12 +280,24 @@
 
         let newDocRef = doc(collection(db, "students"));
         await setDoc(newDocRef, data);
+        isLoaded = false;
     }
 
     function addNewRow() {
         addNewRowInDb({
             name: "", s1: "", s2: "", s3: "", s4: "", prog: "", camp: "", anim: "", remarks: ""
         });
+    }
+
+    function calculateLocalTotal(element) {
+        let row = element.closest('tr');
+        let inputs = row.querySelectorAll('input');
+        let total = 0;
+        for(let i=1; i<=7; i++) {
+            let val = parseFloat(inputs[i].value);
+            if(!isNaN(val)) total += val;
+        }
+        row.querySelector('.total-score').innerText = total;
     }
 
     async function updateData(element) {
@@ -300,13 +317,6 @@
             anim: inputs[7].value,
             remarks: inputs[8].value
         };
-
-        let total = 0;
-        for(let i=1; i<=7; i++) {
-            let val = parseFloat(inputs[i].value);
-            if(!isNaN(val)) total += val;
-        }
-        row.querySelector('.total-score').innerText = total;
 
         const db = window.db;
         const setDoc = window.setDoc;
@@ -346,4 +356,3 @@
 
 </body>
 </html>
-                    
